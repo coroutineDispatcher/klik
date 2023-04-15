@@ -2,7 +2,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import game.GameScene
-import welcome.WelcomeViewModel
 
 val game = Game()
 

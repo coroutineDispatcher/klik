@@ -1,7 +1,6 @@
 package game
 
 import Game
-import GameViewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -24,20 +23,19 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
-var helperText by mutableStateOf("")
-var screenWidth by mutableStateOf(0)
-var screenHeight by mutableStateOf(0)
-var offset by mutableStateOf(IntOffset(-100, -100))
-
 
 @Composable
 fun GameScene(game: Game, onCloseRequest: () -> Unit) {
+    var screenWidth by mutableStateOf(0)
+    var screenHeight by mutableStateOf(0)
+    var offset by mutableStateOf(IntOffset(-100, -100))
     val gameViewModel = GameViewModel()
     val viewModelState = gameViewModel.state.collectAsState()
 
@@ -53,9 +51,7 @@ fun GameScene(game: Game, onCloseRequest: () -> Unit) {
         onKeyEvent = { keyEvent ->
             if (keyEvent.type == KeyEventType.KeyDown) {
                 val letter = keyEvent.key.toString().split(":").last().trim().first()
-                helperText += letter
                 gameViewModel.check(letter)
-                println(helperText)
                 true
             } else {
                 false
@@ -65,15 +61,15 @@ fun GameScene(game: Game, onCloseRequest: () -> Unit) {
     ) {
 
         LaunchedEffect(viewModelState.value.currentWord) {
-            offset = IntOffset(offset.x, -50)
-            helperText = ""
-
-            println("Something happening")
+            offset = IntOffset(((screenWidth / 2) - viewModelState.value.currentWord.length), -50)
 
             launch {
                 while (isActive) {
                     delay(100.milliseconds)
-                    offset = IntOffset((screenWidth / 2), offset.y + 10)
+                    offset = IntOffset(
+                        ((screenWidth / 2) - viewModelState.value.currentWord.length),
+                        offset.y + 10
+                    )
                 }
             }
         }
@@ -91,7 +87,7 @@ fun GameScene(game: Game, onCloseRequest: () -> Unit) {
                 IntOffset(screenWidth - 300, 100)
             }) {
                 items(viewModelState.value.currentChances.size) {
-                    Text(text = "🍑")
+                    Text(text = "🍑", fontSize = 32.sp)
                 }
             }
 
@@ -101,19 +97,20 @@ fun GameScene(game: Game, onCloseRequest: () -> Unit) {
                 } else {
                     offset
                 }
-            }, text = viewModelState.value.currentWord)
+            }, text = viewModelState.value.currentWord, fontSize = 16.sp)
 
             Text(
                 modifier = Modifier.width(100.dp).height(100.dp)
                     .offset {
                         IntOffset(screenWidth - 300, screenHeight - 100)
-                    }, text = helperText,
-                maxLines = 1
+                    }, text = viewModelState.value.points.toString(),
+                maxLines = 1,
+                fontSize = 32.sp
             )
 
             if ((offset.y == (((screenHeight - 100) / 10) * 10)) && screenHeight != 0) {
-                offset = IntOffset(offset.x, -50)
-                helperText = ""
+                offset =
+                    IntOffset(((screenWidth / 2) - viewModelState.value.currentWord.length), -50)
                 gameViewModel.lowerChances()
             }
         }

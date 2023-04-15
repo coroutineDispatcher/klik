@@ -8,7 +8,7 @@ class GameDataSource {
     fun prepareData() = flow {
         if (Data.get().isEmpty()) {
             val lines = BufferedReader(FileReader("data/words.txt")).readLines()
-            Data.set(lines)
+            Data.set(lines.map { it.lowercase() })
             emit(lines)
         }
     }
